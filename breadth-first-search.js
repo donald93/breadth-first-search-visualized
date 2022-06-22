@@ -12,8 +12,6 @@ function createNode() {
     node.drawSelf(ctx);
 }
 
-
-
 class Node {
     constructor(x, y, text) {
         this.x = x;
