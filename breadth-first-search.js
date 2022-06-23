@@ -1,4 +1,5 @@
 var numberOfNodes = 0;
+var nodes = [];
 
 function createNode() {
     var c = document.getElementById("bfs-canvas");
@@ -10,6 +11,8 @@ function createNode() {
 
     var node = new Node(x, y, numberOfNodes++);
     node.drawSelf(ctx);
+    nodes.push(node);
+    
 }
 
 class Node {
@@ -30,7 +33,7 @@ class Node {
         context.arc(this.x, this.y, 20, 0, 2 * Math.PI);
         context.closePath();
 
-        context.fillStyle = "red"
+        context.fillStyle = "red";
         context.fill();
     }
 
@@ -41,5 +44,25 @@ class Node {
         var height = context.measureText("w").width; // this is a GUESS of height
 
         context.fillText(this.text, this.x - (width / 2), this.y + (height / 2));
+    }
+
+    removeSelf(context){
+        
+        context.arc(this.x, this.y, 20.5, 0, 2 * Math.PI);
+        context.closePath();
+
+        context.fillStyle = "white";
+        context.fill();
+    }
+}
+
+function deleteLastNode(){
+
+    if(nodes.length > 0){
+    var c = document.getElementById("bfs-canvas");
+    var ctx = c.getContext("2d");
+
+    var nodeToDelete = nodes.pop();
+    nodeToDelete.removeSelf(ctx);
     }
 }
