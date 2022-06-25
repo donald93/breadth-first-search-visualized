@@ -1,6 +1,7 @@
 var numberOfNodes = 0;
 var nodes = [];
 
+
 function createNode() {
     var c = document.getElementById("bfs-canvas");
     var ctx = c.getContext("2d");
@@ -12,7 +13,7 @@ function createNode() {
     var node = new Node(x, y, numberOfNodes++);
     node.drawSelf(ctx);
     nodes.push(node);
-    
+
 }
 
 class Node {
@@ -46,23 +47,93 @@ class Node {
         context.fillText(this.text, this.x - (width / 2), this.y + (height / 2));
     }
 
-    removeSelf(context){
-        
-        context.arc(this.x, this.y, 20.5, 0, 2 * Math.PI);
+    removeSelf(context) {
         context.closePath();
+        context.beginPath();
+        context.arc(this.x, this.y, 20.5, 0, 2 * Math.PI);
+
 
         context.fillStyle = "white";
         context.fill();
     }
+
+    drawConnection(context, node) {
+
+        var yDif = this.y - node.y;
+        var xDif = node.x - this.x;
+        var theta;
+        var addPi = false;
+        var thirdQuad = false;
+
+
+        // If the position of the difference is in the 2nd quadrant we want to add pi after we find the angle
+        if ((yDif > 0 && xDif < 0)) {
+            xDif = -xDif;
+            addPi = true;
+        }
+
+
+        theta = Math.atan(yDif / xDif); // find the angle
+
+        if (addPi)
+            theta = -theta + Math.PI;
+
+        // If the difference is in the 3rd quadrant than we want to swap the signs of the position on the edge of the node
+        if ((yDif < 0 && xDif < 0))
+            thirdQuad = true;
+
+        if (!thirdQuad) {
+            var posX = 20 * Math.cos(theta) + this.x;
+            var posY = -20 * Math.sin(theta) + this.y;
+            var posX2 = -20 * Math.cos(theta) + node.x;
+            var posY2 = 20 * Math.sin(theta) + node.y;
+        }
+        else {
+            var posX = -20 * Math.cos(theta) + this.x;
+            var posY = 20 * Math.sin(theta) + this.y;
+            var posX2 = 20 * Math.cos(theta) + node.x;
+            var posY2 = -20 * Math.sin(theta) + node.y;
+        }
+
+        //Draw the line between nodes
+        context.closePath();
+        context.beginPath();
+        context.moveTo(posX, posY);
+        context.lineTo(posX2, posY2);
+        context.stroke();
+
+
+
+
+
+    }
 }
 
-function deleteLastNode(){
+function deleteLastNode() {
 
-    if(nodes.length > 0){
-    var c = document.getElementById("bfs-canvas");
-    var ctx = c.getContext("2d");
+    if (nodes.length > 0) {
+        var c = document.getElementById("bfs-canvas");
+        var ctx = c.getContext("2d");
 
-    var nodeToDelete = nodes.pop();
-    nodeToDelete.removeSelf(ctx);
+        var nodeToDelete = nodes.pop();
+
+        numberOfNodes = numberOfNodes - 1;
+        nodeToDelete.removeSelf(ctx);
+    }
+}
+
+function getConnectionNodes() {
+
+
+    // Get the value of the first connection node
+    var firstNode = nodes.at(document.getElementById("FirstNode").value);
+    // Get the value of the second connection node
+    var secondNode = nodes.at(document.getElementById("SecondNode").value);
+
+    // If both nodes are less than the size that means the length of the array is greater than the value of the nodes
+    if (typeof secondNode !== 'undefined' && typeof firstNode !== 'undefined') {
+        var c = document.getElementById("bfs-canvas");
+        var ctx = c.getContext("2d");
+        firstNode.drawConnection(ctx, secondNode);
     }
 }
