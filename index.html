@@ -9,20 +9,39 @@ title: Test
     Hello Donald from test branch
 </div>
 
-<div class = "class">
+<div>
    Connect Nodes: <label for="FirstNode"></label>
     <input name="firstNode" id="FirstNode" type="text" />
      <label for="SecondNode">To:</label>
     <input name="secondNode" id="SecondNode" type="text" /> 
-    <button onclick="getConnectionNodes()"> Submit </button>
+    <button onclick="connectionNodes()"> Submit </button>
 </div>
 <div>
     <button onclick="createNode()">Add node</button>
+    <input type="checkbox" id="directional" name="directional" value="Direction" onclick="isDirectional()">
+    <label for="directional">Directional Graph?</label><br>
 </div>
 <div>
     <button onclick="deleteLastNode()"> Remove last node</button>
 </div>
 
 <div>
+    Animation Speed: <input type="range" min="1" max="10" value="5" class="slider" id="animationSlider" onclick="changeAnimationSpeed()">
+  </div>
+
+<div>
     <canvas id="bfs-canvas" height="500" width="500" style="border:1px solid #000000;"></canvas>
+</div>
+
+<style>
+    #bottomPage{
+        position: fixed;
+        bottom: 250;
+        left: 10;
+    }
+</style>
+
+<div id="bottomPage">Run breadth first search starting from: 
+    <input name="BFFS" id="BFS" type="text" /> 
+    <button onclick="runBFS()"> Run </button>
 </div>
