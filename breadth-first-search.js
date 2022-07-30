@@ -1,8 +1,9 @@
 var numberOfNodes = 0;
 var nodes = [];
-var directional = false;
+var nodePositions = [];
 var time = 100;
 var initalTime = 100;
+var lengthOfColor = .01;
 
 function createNode() {
     var c = document.getElementById("bfs-canvas");
@@ -11,11 +12,41 @@ function createNode() {
     //random number between 0 and 480...which is a rough boundary of our canvas that's 500x500
     const x = Math.floor(Math.random() * 480);
     const y = Math.floor(Math.random() * 480);
+    const pos = new Pair(x, y);
+    nodePositions.push(findRandomNodePosition(pos));
 
-    var node = new Node(x, y, numberOfNodes++);
+    var node = new Node(pos.x, pos.y, numberOfNodes++);
     node.drawSelf(ctx);
     nodes.push(node);
 
+}
+
+function findRandomNodePosition(pos) {
+    // Go through and check every vertex
+    for (i = 0; i < nodePositions.length; i++) {
+        const p = nodePositions.at(i);
+        const distance = Math.sqrt(Math.pow((p.x - pos.x), 2) + (Math.pow((p.y - pos.y),2)));
+        // If the position between this vertex and another is less than 100 then
+        // generate a new random point for this vertex
+        if (distance < 50) {
+            console.log("got here");
+            const x = Math.floor(Math.random() * 480);
+            const y = Math.floor(Math.random() * 480);
+            pos.x = x;
+            pos.y = y;
+            // Call itself again to check this new random point.
+            findRandomNodePosition(pos);
+            break;
+        }
+    }
+    return pos;
+}
+
+class Pair{
+    constructor(x, y){
+        this.x = x;
+        this.y = y;
+    }
 }
 
 class Node {
@@ -38,11 +69,13 @@ class Node {
 
         context.arc(this.x, this.y, 20, 0, 2 * Math.PI);
         context.closePath();
-
-        context.fillStyle = "red";
-        if (color === true)
-            context.fillStyle = "blue";
-        context.fill();
+        context.stroke();
+    
+        if (color === true){
+            context.fillStyle = "#0075FF";
+            context.fill();
+        }
+        context.strokeStyle = "black";
     }
 
     drawText(context) {
@@ -65,78 +98,18 @@ class Node {
     }
 
     drawConnection(context, node, color) {
-
-        var yDif = this.y - node.y;
-        var xDif = node.x - this.x;
-        var theta;
-        var addPi = false;
-        var thirdQuad = false;
-
-
-
-        // If the position of the difference is in the 2nd quadrant we want to add pi after we find the angle
-        if ((yDif > 0 && xDif < 0)) {
-            xDif = -xDif;
-            addPi = true;
-        }
-
-
-        theta = Math.atan(yDif / xDif); // find the angle
-
-        if (addPi)
-            theta = -theta + Math.PI;
-
-        // If the difference is in the 3rd quadrant than we want to swap the signs of the position on the edge of the node
-        if ((yDif < 0 && xDif < 0))
-            thirdQuad = true;
-
-        if (!thirdQuad) {
-            var posX = 20 * Math.cos(theta) + this.x;
-            var posY = -20 * Math.sin(theta) + this.y;
-            var posX2 = -20 * Math.cos(theta) + node.x;
-            var posY2 = 20 * Math.sin(theta) + node.y;
-        }
-        else {
-            var posX = -20 * Math.cos(theta) + this.x;
-            var posY = 20 * Math.sin(theta) + this.y;
-            var posX2 = 20 * Math.cos(theta) + node.x;
-            var posY2 = -20 * Math.sin(theta) + node.y;
-        }
-
-        //Draw the line between nodes
-        context.closePath();
-        context.beginPath();
-
-        context.moveTo(posX, posY);
-        context.lineTo(posX2, posY2);
-
-        if (color === true)
-            context.strokeStyle = 'blue';
-        context.stroke();
-        // drawArrow2(posX, posY, posX2, posY2, theta);
-
+            const startNode = findLineAngle(true, this, node);
+            const endNode = findLineAngle(false, this, node);
+      
+            context.moveTo(startNode.x, startNode.y);
+            context.lineTo(endNode.x, endNode.y);
+            context.stroke();
         this.connectionList.push(node);
-        if (directional)
-            node.connectionList.push(this);
+        node.connectionList.push(this);
     }
 }
 
-/**
- * TODO
- * this function is useless if each node spawns away from other nodes
- */
-function deleteLastNode() {
 
-    if (nodes.length > 0) {
-        var c = document.getElementById("bfs-canvas");
-        var ctx = c.getContext("2d");
-
-        var nodeToDelete = nodes.pop();
-
-        numberOfNodes = numberOfNodes - 1;
-        nodeToDelete.removeSelf(ctx);
-    }
-}
 
 function connectionNodes() {
     // Get the value of the first connection node
@@ -169,19 +142,33 @@ async function runBFS() {
     startingNode.visitedState = true;
     // continue the bfs until there are no nodes left in the queue
     while (nodeQueue.length > 0) {
+        const nodesToAnimate = [];
         var currentNode = nodeQueue.pop();
         await sleep(time);
         // Recolor the connections between each node
+        ctx.closePath();
+        ctx.beginPath();
+        
         for (i = 0; i < currentNode.connectionList.length; i++) {
             const connectionNode = currentNode.connectionList.at(i);
             if (connectionNode.visitedState === false) {
                 connectionNode.visitedState = true;
                 nodeQueue.push(connectionNode);
-                redrawNodeConnection(ctx, currentNode, connectionNode);
+                nodesToAnimate.push(connectionNode);
             }
 
         }
-        await sleep(time);
+
+        while(lengthOfColor < 1){
+            for(i = 0; i < nodesToAnimate.length;i++){
+                   redrawConnections(ctx, currentNode, nodesToAnimate.at(i));
+            }
+            lengthOfColor+= .01;
+            drawConnections(ctx);
+            await sleep(time/2);
+        }
+        lengthOfColor = .01;
+        ctx.strokeStyle = "black";
         // Recolor each node
         for (i = 0; i < currentNode.connectionList.length; i++) {
             const connectionNode = currentNode.connectionList.at(i);
@@ -202,14 +189,70 @@ function redrawNode(context, currentNode, connectionNode) {
     connectionNode.drawCircle(context, true);
     connectionNode.drawText(context);
 }
-function redrawNodeConnection(context, currentNode, connectionNode) {
-    currentNode.drawConnection(context, connectionNode, true);
+
+function findLineAngle(start,startingNode, endingNode){
+    var yDif = startingNode.y - endingNode.y;
+    var xDif = endingNode.x- startingNode.x;
+    var theta;
+    var addPi = false;
+    var thirdQuad = false;
+    var posX, posY, posX2, posY2;
+
+    // If the position of the difference is in the 2nd quadrant we want to add pi after we find the angle
+    if ((yDif > 0 && xDif < 0)) {
+        xDif = -xDif;
+        addPi = true;
+    }
+
+
+    theta = Math.atan(yDif / xDif); // find the angle
+
+    if (addPi)
+        theta = -theta + Math.PI;
+
+    // If the difference is in the 3rd quadrant than we want to swap the signs of the position on the edge of the node
+    if ((yDif < 0 && xDif < 0))
+        thirdQuad = true;
+
+    if (!thirdQuad) {
+         posX = 20 * Math.cos(theta) + startingNode.x;
+         posY = -20 * Math.sin(theta) + startingNode.y;
+         posX2 = -20 * Math.cos(theta) + endingNode.x;
+         posY2 = 20 * Math.sin(theta) + endingNode.y;
+    }
+    else {
+         posX = -20 * Math.cos(theta) +startingNode.x;
+         posY = 20 * Math.sin(theta) +  startingNode.y;
+         posX2 = 20 * Math.cos(theta) + endingNode.x;
+         posY2 = -20 * Math.sin(theta) + endingNode.y;
+    }
+
+    if(start == true)
+        return new Pair(posX, posY);
+    return new Pair(posX2, posY2);
+
 }
 
-function isDirectional() {
-    directional = true;
+function redrawConnections(context, startingNode, endingNode){
+    const realStart = findLineAngle(true, startingNode, endingNode);
+    const realEnd = findLineAngle(false, startingNode, endingNode);
+    const distance = Math.sqrt(Math.pow((realEnd.x - realStart.x), 2) +  Math.pow((realEnd.y - realStart.y), 2));
+    const vector = new Pair(realEnd.x - realStart.x, realEnd.y - realStart.y);
+    const vectorMagnitude = Math.sqrt(Math.pow(vector.x, 2) + Math.pow(vector.y, 2));
+    const unitVector = new Pair((vector.x/vectorMagnitude), (vector.y/vectorMagnitude));
+    const coverage = distance * lengthOfColor; // in other words the u vector
+    const normalVector = new Pair(unitVector.x * coverage, unitVector.y * coverage);
+
+    context.strokeStyle = "blue";
+    //Draw this change
+    context.moveTo(realStart.x, realStart.y);
+    context.lineTo(realStart.x + normalVector.x, realStart.y + normalVector.y);
+
 }
 
+function drawConnections(context){
+    context.stroke();
+}
 /**
  * Used to change animation speed
  */
@@ -218,4 +261,3 @@ function changeAnimationSpeed() {
     time = 100 * (10 - slider.value);
     initalTime = 100 * (10 - slider.value);
 }
-
