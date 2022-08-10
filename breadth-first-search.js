@@ -1,14 +1,19 @@
 var numberOfNodes = 0;
 var nodes = [];
 var nodePositions = [];
-var time = 100;
-var initalTime = 100;
+var time = 50;
+var initalTime = 50;
 var lengthOfColor = .01;
+var loading = false;
+var pause = false;
+
 
 function createNode() {
     var c = document.getElementById("bfs-canvas");
     var ctx = c.getContext("2d");
 
+    if(loading)
+         throw console.error("Cannot Create Nodes While Running BFS");
     //random number between 0 and 480...which is a rough boundary of our canvas that's 500x500
     const x = Math.floor(Math.random() * 480);
     const y = Math.floor(Math.random() * 480);
@@ -72,7 +77,7 @@ class Node {
         context.stroke();
     
         if (color === true){
-            context.fillStyle = "#0075FF";
+            context.fillStyle = "#19C9FF";
             context.fill();
         }
         context.strokeStyle = "black";
@@ -112,6 +117,8 @@ class Node {
 
 
 function connectionNodes() {
+    if(loading)
+          throw console.error("Cannot Draw Connections While Running BFS");
     // Get the value of the first connection node
     var firstNode = nodes.at(document.getElementById("FirstNode").value);
     // Get the value of the second connection node
@@ -133,7 +140,8 @@ async function runBFS() {
     var startingNode = nodes.at(document.getElementById("BFS").value);
     if (typeof startingNode === 'undefined')
         throw console.error("Input a node inorder to run BFS");
-
+    loading = true;
+    showPauseButton();
     // Create the queue used to run a bfs
     const nodeQueue = [];
     nodeQueue.push(startingNode);
@@ -166,6 +174,8 @@ async function runBFS() {
             lengthOfColor+= .01;
             drawConnections(ctx);
             await sleep(time/2);
+            if(pause)
+                await pauseAnimation();
         }
         lengthOfColor = .01;
         ctx.strokeStyle = "black";
@@ -175,6 +185,8 @@ async function runBFS() {
             redrawNode(ctx, currentNode, connectionNode);
         }
     }
+    loading = false;
+    hidePauseButton();
 }
 /**
  * Used to stop the code for a certain amount of time
@@ -243,7 +255,7 @@ function redrawConnections(context, startingNode, endingNode){
     const coverage = distance * lengthOfColor; // in other words the u vector
     const normalVector = new Pair(unitVector.x * coverage, unitVector.y * coverage);
 
-    context.strokeStyle = "blue";
+    context.strokeStyle = "#19C9FF";
     //Draw this change
     context.moveTo(realStart.x, realStart.y);
     context.lineTo(realStart.x + normalVector.x, realStart.y + normalVector.y);
@@ -258,6 +270,50 @@ function drawConnections(context){
  */
 function changeAnimationSpeed() {
     var slider = document.getElementById("animationSlider");
-    time = 100 * (10 - slider.value);
-    initalTime = 100 * (10 - slider.value);
+    time = 50 * (10 - slider.value);
+    initalTime = 50 * (10 - slider.value);
 }
+
+/**
+ * Shows the pause button that pauses the animation
+ */
+function showPauseButton(){
+     document.getElementById("pauseAnimation").innerHTML = '<img src="pause_button.png" alt="pause button" width="30" height="30" onclick="stopAnimation()">';
+}
+
+/**
+ * Hides the pause button
+ */
+function hidePauseButton(){
+    document.getElementById("pauseAnimation").hidden = '<img src="pause_button.png" alt="pause button" width="30" height="30" onclick="stopAnimation()">';
+}
+/**
+ * Stops the animation and updates the pause button
+ */
+function stopAnimation(){
+    document.getElementById("pauseAnimation").style.visibility = "hidden";
+    document.getElementById("pauseAnimation").innerHTML = '<img src="play_button.png" alt="play button" width="30" height="30" onclick="resumeAnimation()">';
+    document.getElementById("pauseAnimation").style.visibility = "visible";
+    pause = true;
+}
+
+/**
+ * Resumes animation and updates pause button
+ */
+function resumeAnimation(){
+    document.getElementById("pauseAnimation").style.visibility = "hidden";
+    document.getElementById("pauseAnimation").innerHTML = '<img src="pause_button.png" alt="pause button" width="30" height="30" onclick="stopAnimation()">';
+    document.getElementById("pauseAnimation").style.visibility = "visible";
+    pause = false;
+}
+
+/**
+ * This function will stop everything until the pause flag is false
+ */
+async function pauseAnimation(){
+    while(pause){
+        await sleep(100);
+    }
+}
+
+
