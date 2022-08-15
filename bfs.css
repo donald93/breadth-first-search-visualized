@@ -1,8 +1,14 @@
 
 .project{
     display: flex;
-    flex-flow: column;
-    justify-content: end;
+    flex-direction: column;
+    /* justify-content: flex-end; */
+}
+
+.controls{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 .title{
@@ -101,10 +107,6 @@
   -webkit-transition: border 1000ms ease;
     transition: border 1000ms ease;
   }
-  
-
-  
-
 
 .font {
     font-family: sans-serif;
@@ -119,4 +121,10 @@ span{
     position: fixed;
     bottom: 2%;
     left: 43%;
+}
+.pause-icon{
+    background: url('pause_button.png');
+    max-height: 5px;
+    max-width: 50px;
+    
 }

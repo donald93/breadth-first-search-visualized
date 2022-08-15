@@ -11,7 +11,9 @@ var pause = false;
 function createNode() {
     var c = document.getElementById("bfs-canvas");
     var ctx = c.getContext("2d");
-
+    startingNode.options.add(new Option(numberOfNodes, numberOfNodes, numberOfNodes));
+    endingNode.options.add(new Option(numberOfNodes, numberOfNodes, numberOfNodes));
+    bfsStart.options.add(new Option(numberOfNodes, numberOfNodes, numberOfNodes));
     if(loading)
          throw console.error("Cannot Create Nodes While Running BFS");
     //random number between 0 and 480...which is a rough boundary of our canvas that's 500x500
@@ -120,9 +122,9 @@ function connectionNodes() {
     if(loading)
           throw console.error("Cannot Draw Connections While Running BFS");
     // Get the value of the first connection node
-    var firstNode = nodes.at(document.getElementById("FirstNode").value);
+    var firstNode = nodes.at(document.getElementById("startingNode").value);
     // Get the value of the second connection node
-    var secondNode = nodes.at(document.getElementById("SecondNode").value);
+    var secondNode = nodes.at(document.getElementById("endingNode").value);
 
     // If both nodes are less than the size that means the length of the array is greater than the value of the nodes
     if (typeof secondNode !== 'undefined' && typeof firstNode !== 'undefined') {
@@ -135,13 +137,17 @@ function connectionNodes() {
 }
 
 async function runBFS() {
+    if(loading){
+        pause = !pause;
+        return;
+    }
+
     var c = document.getElementById("bfs-canvas");
     var ctx = c.getContext("2d");
-    var startingNode = nodes.at(document.getElementById("BFS").value);
+    var startingNode = nodes.at(document.getElementById("bfsStart").value);
     if (typeof startingNode === 'undefined')
         throw console.error("Input a node inorder to run BFS");
     loading = true;
-    showPauseButton();
     // Create the queue used to run a bfs
     const nodeQueue = [];
     nodeQueue.push(startingNode);
@@ -186,7 +192,6 @@ async function runBFS() {
         }
     }
     loading = false;
-    hidePauseButton();
 }
 /**
  * Used to stop the code for a certain amount of time
@@ -274,38 +279,6 @@ function changeAnimationSpeed() {
     initalTime = 50 * (10 - slider.value);
 }
 
-/**
- * Shows the pause button that pauses the animation
- */
-function showPauseButton(){
-     document.getElementById("pauseAnimation").innerHTML = '<img src="pause_button.png" alt="pause button" width="30" height="30" onclick="stopAnimation()">';
-}
-
-/**
- * Hides the pause button
- */
-function hidePauseButton(){
-    document.getElementById("pauseAnimation").hidden = '<img src="pause_button.png" alt="pause button" width="30" height="30" onclick="stopAnimation()">';
-}
-/**
- * Stops the animation and updates the pause button
- */
-function stopAnimation(){
-    document.getElementById("pauseAnimation").style.visibility = "hidden";
-    document.getElementById("pauseAnimation").innerHTML = '<img src="play_button.png" alt="play button" width="30" height="30" onclick="resumeAnimation()">';
-    document.getElementById("pauseAnimation").style.visibility = "visible";
-    pause = true;
-}
-
-/**
- * Resumes animation and updates pause button
- */
-function resumeAnimation(){
-    document.getElementById("pauseAnimation").style.visibility = "hidden";
-    document.getElementById("pauseAnimation").innerHTML = '<img src="pause_button.png" alt="pause button" width="30" height="30" onclick="stopAnimation()">';
-    document.getElementById("pauseAnimation").style.visibility = "visible";
-    pause = false;
-}
 
 /**
  * This function will stop everything until the pause flag is false
