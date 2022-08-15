@@ -1,8 +1,14 @@
 
 .project{
     display: flex;
-    flex-flow: column;
-    justify-content: end;
+    flex-direction: column;
+    /* justify-content: flex-end; */
+}
+
+.controls{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 .title{
