@@ -2,87 +2,33 @@
 <link  rel="stylesheet" type="text/css" href="bfs.css"></link>
 <script src="https://kit.fontawesome.com/5c40e3047d.js" crossorigin="anonymous"></script>
 
-<div class="title">
-Breadth First Search Visualizer
+<h1 class="title">
+Breadth First Search Visulaizer
+</h1>
+<body class="project">
+<section class="buttons">
+    <button onclick="createNode()"><i class="fa-solid fa-plus"></i></button>
+    |
+    <select id="startingNode">
+        <optgroup label="Current Nodes"></optgroup>
+    </select>
+    -
+    <select id="endingNode">
+        <optgroup label="Connection Nodes"></optgroup>
+    </select>
+    <button onclick="connectionNodes()"><i class="fa-solid fa-code-pull-request"></i></button>
+    |
+    <select id="bfsStart">
+        <optgroup label="Run BFS From"></optgroup>
+    </select>
+    <button onclick="runBFS()" id="runButton"><i class="fa-solid fa-play"></i></button>
+    |
+    <div>
+        Animation Speed:
+        <input type="range" min="1" max="10" value="5" id="animationSlider" onclick="changeAnimationSpeed()">
+    </div> 
 </div>
-<div class="project">
-
-    <div class="controls">
-        <!-- <button onclick="createNode()" style="background-color:#0B90D4"><span>Add node</span></button>
-        <div>
-            Animation Speed:
-            <input type="range" min="1" max="10" value="5" id="animationSlider" onclick="changeAnimationSpeed()">
-        </div>
-    </div>
-    <div class="controls">
-        <label>
-            Connect Node:
-            <input name="firstNode" type="select"/>
-        </label>
-         <label>
-            To: 
-            <input name="secondNode" type="text" /> 
-         </label>
-        <button onclick="connectionNodes()" style="background-color:#0B90D4"> Submit </button>
-    </div>
-    <div class="controls">
-        Run breadth first search starting from: 
-        <input name="BFFS" id="BFS" type="text" /> 
-        <button onclick="runBFS()" style="background-color:#00c0fa"> Run </button> -->
-        <button onclick="createNode()"><i class="fa-solid fa-plus"></i></button>
-        |
-        <select id="startingNode">
-            <optgroup label="Current Nodes"></optgroup>
-        </select>
-        -
-        <select id="endingNode">
-            <optgroup label="Connection Nodes"></optgroup>
-        </select>
-        <button onclick="connectionNodes()"><i class="fa-solid fa-code-pull-request"></i></button>
-        |
-        <select id="bfsStart">
-            <optgroup label="Run BFS From"></optgroup>
-        </select>
-        <button onclick="runBFS()" id="runButton"><i class="fa-solid fa-play"></i></button>
-        |
-        <div>
-            Animation Speed:
-            <input type="range" min="1" max="10" value="5" id="animationSlider" onclick="changeAnimationSpeed()">
-        </div> 
-    </div>
-    <canvas id="bfs-canvas" height="500" width="500" style="border:1px solid #000000;"></canvas>
-
-<!-- <section class="buttons">
-    <div class="connect">
-        Connect Node: <label for="FirstNode" ></label>
-    <input name="firstNode" id="FirstNode" type="text" />
-     <label for="SecondNode">To:</label>
-    <input name="secondNode" id="SecondNode" type="text" /> 
-    <button onclick="connectionNodes()" style="background-color:#0B90D4"> Submit </button>
-</div> 
-</section>
-<div class="box">
-    <canvas id="bfs-canvas" height="500" width="500" style="border:1px solid #000000;"></canvas>
-</div>
-<div class="create-node">
-    <button onclick="createNode()" style="background-color:#0B90D4"><span>Add node</span></button>
-</div>
-<div class="slider">
-    <div class="slider-title">
-        Animation Speed:</div>
-     <input type="range" min="1" max="10" value="5" class="slider" id="animationSlider" onclick="changeAnimationSpeed()">
-    </div>
-  <div class="playbutton">
-    <span id="pauseAnimation"> </span>
-    <span id="resumeAnimation"></span>
-  </div>
-  
-<div class="bottom-page">Run breadth first search starting from: 
-    <input name="BFFS" id="BFS" type="text" /> 
-    <button onclick="runBFS()" style="background-color:#00c0fa"> Run </button>
-</div> -->
-
-
+<canvas id="bfs-canvas" height="500" width="500" style="border:1px solid #000000;"></canvas>
 
 </div>
 <footer class="credits"> Created by Dax and Donald McPartland</footer>
