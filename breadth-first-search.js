@@ -289,4 +289,8 @@ async function pauseAnimation(){
     }
 }
 
+async function pauseButton(){
+    pause = !pause;
+}
+
 
